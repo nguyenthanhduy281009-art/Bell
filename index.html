@@ -2,107 +2,100 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Game Né Vật Rơi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Khối lượng</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #1a1a1a; color: white; font-family: sans-serif; }
-        canvas { display: block; background: #222; margin: 0 auto; border-bottom: 5px solid #555; cursor: crosshair; }
-        #ui { position: absolute; top: 10px; left: 10px; pointer-events: none; z-index: 10; }
-        #weight { font-weight: bold; color: #ff4444; }
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+        }
+        .header {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .count {
+            color: #ff4d4d;
+            font-weight: bold;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #555;
+        }
     </style>
 </head>
 <body>
-    <div id="ui">
-        <div>Khối lượng: <span id="weight">0</span> / 100 kg</div>
-        <div id="msg"></div>
+
+<div class="container">
+    <div class="header">
+        Khối lượng hiện tại: <span id="current-val" class="count">0</span> / 100
     </div>
-    <canvas id="gameCanvas"></canvas>
+    
+    <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+    </div>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const weightDisplay = document.getElementById('weight');
-        const msgDisplay = document.getElementById('msg');
+    <div class="controls">
+        <button onclick="updateProgress(10)">Thêm 10%</button>
+        <button onclick="updateProgress(-10)">Bớt 10%</button>
+        <button onclick="resetProgress()">Reset</button>
+    </div>
+</div>
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+<script>
+    let current = 0;
+    const max = 100;
 
-        // Ảnh mới của bạn đã được tối ưu dung lượng để tránh đứng máy
-        const itemImg = new Image();
-        itemImg.src = 'https://api.allorigins.win/raw?url=https://i.imgur.com/8N4N8fC.png'; 
-        // Lưu ý: Nếu ảnh không hiện do chặn link, tôi sẽ gửi mã Base64 cực ngắn ở bước sau.
+    function updateProgress(val) {
+        current += val;
+        if (current > max) current = max;
+        if (current < 0) current = 0;
+        render();
+    }
 
-        let player = { x: canvas.width / 2, y: canvas.height - 60, w: 120, h: 15 };
-        let items = [];
-        let currentWeight = 0;
-        const maxWeight = 100;
-        let gameOver = false;
+    function resetProgress() {
+        current = 0;
+        render();
+    }
 
-        window.addEventListener('mousemove', (e) => {
-            if (!gameOver) player.x = e.clientX - player.w / 2;
-        });
+    function render() {
+        document.getElementById('current-val').innerText = current;
+        document.getElementById('progress-fill').style.width = current + '%';
+    }
+</script>
 
-        function spawnItem() {
-            if (gameOver) return;
-            items.push({
-                x: Math.random() * (canvas.width - 60),
-                y: -70,
-                size: 60,
-                weight: Math.floor(Math.random() * 10) + 5,
-                speed: 3 + Math.random() * 3
-            });
-            setTimeout(spawnItem, 800);
-        }
-
-        function update() {
-            if (gameOver) return;
-
-            for (let i = items.length - 1; i >= 0; i--) {
-                items[i].y += items[i].speed;
-
-                // Kiểm tra va chạm
-                if (items[i].y + items[i].size > player.y && 
-                    items[i].x + items[i].size > player.x && 
-                    items[i].x < player.x + player.w) {
-                    
-                    currentWeight += items[i].weight;
-                    weightDisplay.innerText = currentWeight;
-                    items.splice(i, 1);
-
-                    if (currentWeight > maxWeight) {
-                        gameOver = true;
-                        msgDisplay.innerHTML = "<h1 style='color:red; background:rgba(0,0,0,0.7); padding:10px;'>MẶT KÍNH VỠ! GAME OVER</h1>";
-                    }
-                } else if (items[i].y > canvas.height) {
-                    items.splice(i, 1);
-                }
-            }
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Vẽ thanh hứng (mặt kính)
-            ctx.fillStyle = "rgba(135, 206, 235, 0.8)";
-            ctx.fillRect(player.x, player.y, player.w, player.h);
-            ctx.strokeStyle = "#fff";
-            ctx.strokeRect(player.x, player.y, player.w, player.h);
-
-            // Vẽ vật rơi (Ảnh của bạn)
-            items.forEach(item => {
-                if (itemImg.complete) {
-                    ctx.drawImage(itemImg, item.x, item.y, item.size, item.size);
-                } else {
-                    ctx.fillStyle = "red";
-                    ctx.fillRect(item.x, item.y, item.size, item.size);
-                }
-            });
-
-            update();
-            requestAnimationFrame(draw);
-        }
-
-        spawnItem();
-        draw();
-    </script>
 </body>
 </html>
