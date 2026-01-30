@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Game Né Vật Rơi</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #1a1a1a; color: white; font-family: sans-serif; }
+        canvas { display: block; background: #222; margin: 0 auto; border-bottom: 5px solid #555; }
+        #ui { position: absolute; top: 10px; left: 10px; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <div>Khối lượng hiện tại: <span id="weight">0</span> / 100</div>
+        <div id="msg"></div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const weightDisplay = document.getElementById('weight');
+        const msgDisplay = document.getElementById('msg');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let player = { x: canvas.width / 2, y: canvas.height - 50, w: 100, h: 20 };
+        let items = [];
+        let currentWeight = 0;
+        const maxWeight = 100;
+        let gameOver = false;
+
+        // Lắng nghe chuột
+        window.addEventListener('mousemove', (e) => {
+            player.x = e.clientX - player.w / 2;
+        });
+
+        function spawnItem() {
+            if (gameOver) return;
+            items.push({
+                x: Math.random() * canvas.width,
+                y: -20,
+                size: 20 + Math.random() * 30,
+                weight: Math.floor(Math.random() * 20) + 5,
+                speed: 2 + Math.random() * 3
+            });
+            setTimeout(spawnItem, 1000);
+        }
+
+        function update() {
+            if (gameOver) return;
+
+            items.forEach((item, index) => {
+                item.y += item.speed;
+
+                // Kiểm tra va chạm với "mặt kính" (người chơi)
+                if (item.y + item.size > player.y && 
+                    item.x > player.x && 
+                    item.x < player.x + player.w) {
+                    
+                    currentWeight += item.weight;
+                    weightDisplay.innerText = currentWeight;
+                    items.splice(index, 1);
+
+                    if (currentWeight > maxWeight) {
+                        gameOver = true;
+                        msgDisplay.innerHTML = "<h1 style='color:red'>MẶT KÍNH VỠ! GAME OVER</h1>";
+                    }
+                }
+
+                // Xóa vật phẩm rơi khỏi màn hình
+                if (item.y > canvas.height) items.splice(index, 1);
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Vẽ người chơi (mặt kính)
+            ctx.fillStyle = "rgba(135, 206, 235, 0.7)";
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+
+            // Vẽ vật rơi
+            ctx.fillStyle = "#ff4444";
+            items.forEach(item => {
+                ctx.fillRect(item.x, item.y, item.size, item.size);
+            });
+
+            update();
+            requestAnimationFrame(draw);
+        }
+
+        spawnItem();
+        draw();
+    </script>
+</body>
+</html>
