@@ -2,18 +2,18 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bell - Game Gạt Kính</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #1a1a1a; color: white; font-family: sans-serif; }
+        body { margin: 0; overflow: hidden; background: #1a1a1a; color: white; font-family: sans-serif; touch-action: none; }
         #game-container { position: relative; width: 100vw; height: 100vh; }
         
-        /* Mặt kính */
         #paddle {
             position: absolute;
-            bottom: 50px;
-            width: 160px;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.3);
+            bottom: 100px; /* Nâng cao lên một chút để không bị ngón tay che */
+            width: 120px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.4);
             border: 2px solid #fff;
             border-radius: 10px;
             transform: translateX(-50%);
@@ -21,7 +21,6 @@
             pointer-events: none;
         }
 
-        /* Giao diện */
         .ui {
             position: fixed;
             top: 20px;
@@ -30,19 +29,16 @@
             pointer-events: none;
             z-index: 200;
         }
-        .info { font-size: 20px; margin-bottom: 5px; }
-        .red { color: #ff4d4d; font-weight: bold; font-size: 28px; }
-        .progress-bg { width: 350px; height: 15px; background: #333; margin: 5px auto; border-radius: 10px; }
+        .red { color: #ff4d4d; font-weight: bold; font-size: 24px; }
+        .progress-bg { width: 80%; max-width: 300px; height: 12px; background: #333; margin: 5px auto; border-radius: 10px; }
         #bar { height: 100%; width: 0%; background: #4CAF50; transition: 0.1s; }
 
-        /* Vật rơi */
         .falling-item {
             position: absolute;
-            width: 80px; 
+            width: 60px; 
             pointer-events: none;
         }
 
-        /* Màn hình kết thúc */
         #msg { 
             display: none; 
             position: fixed; 
@@ -52,38 +48,26 @@
             text-align: center; 
             z-index: 300; 
             background: rgba(0,0,0,0.9); 
-            padding: 30px; 
-            border: 2px solid red;
+            padding: 20px; 
+            width: 80%;
             border-radius: 15px; 
         }
-        button { 
-            padding: 12px 25px; 
-            font-size: 18px; 
-            cursor: pointer; 
-            background: #ff4d4d; 
-            color: #fff; 
-            border: none; 
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        button:hover { background: #cc0000; }
+        button { padding: 12px 25px; font-size: 18px; cursor: pointer; background: #ff4d4d; color: #fff; border: none; border-radius: 5px; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
     <div class="ui">
-        <div class="info">Thời gian: <span id="timer">0</span>s</div>
-        <div class="info">Khối lượng: <span id="num" class="red">0</span> / 100</div>
+        <div style="font-size: 16px;">⏱ <span id="timer">0</span>s</div>
+        <div class="red"><span id="num">0</span> / 100</div>
         <div class="progress-bg"><div id="bar"></div></div>
     </div>
-    
     <div id="paddle"></div>
-    
     <div id="msg">
-        <h1 style="color:red; font-size: 40px; margin-top:0;">KHỐI LƯỢNG QUÁ LỚN KÍNH CƯỜNG LỰC VỠ RỒI!</h1>
-        <p id="final-stats" style="font-size: 18px;"></p>
-        <button onclick="location.reload()">QUAY LẠI CHƠI TIẾP</button>
+        <h1 style="color:red;">KÍNH VỠ!</h1>
+        <p id="final-stats"></p>
+        <button onclick="location.reload()">CHƠI LẠI</button>
     </div>
 </div>
 
@@ -94,46 +78,43 @@
     const timerDisp = document.getElementById('timer');
     const container = document.getElementById('game-container');
     const msg = document.getElementById('msg');
-    const finalStats = document.getElementById('final-stats');
 
-    let score = 0;
-    let seconds = 0;
-    let gameOver = false;
-    let baseSpeed = 5; // Tốc độ rơi ban đầu
-
-    // Link ảnh từ Drive
+    let score = 0, seconds = 0, gameOver = false, baseSpeed = 5;
     const imgURL = 'https://lh3.googleusercontent.com/d/16bzAEYDVO01KwYA4Vee3_Vivc98SmWS-'; 
 
-    // Bộ đếm thời gian và tăng độ khó
+    // Hàm điều khiển chung cho cả chuột và cảm ứng
+    function movePaddle(x) {
+        if (!gameOver) {
+            // Giới hạn không cho mặt kính ra ngoài màn hình
+            let safeX = Math.max(60, Math.min(x, window.innerWidth - 60));
+            paddle.style.left = safeX + 'px';
+        }
+    }
+
+    window.addEventListener('mousemove', (e) => movePaddle(e.clientX));
+    window.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        movePaddle(e.touches[0].clientX);
+    }, { passive: false });
+
     const gameTimer = setInterval(() => {
         if (!gameOver) {
             seconds++;
             timerDisp.innerText = seconds;
-            // Cứ mỗi 10 giây tăng tốc độ rơi thêm 1
-            if (seconds % 10 === 0) {
-                baseSpeed += 1;
-            }
-        } else {
-            clearInterval(gameTimer);
+            if (seconds % 8 === 0) baseSpeed += 1;
         }
     }, 1000);
-
-    // Điều khiển mặt kính
-    window.addEventListener('mousemove', (e) => {
-        if (!gameOver) paddle.style.left = e.clientX + 'px';
-    });
 
     function createItem() {
         if (gameOver) return;
         const item = document.createElement('img');
         item.src = imgURL;
         item.className = 'falling-item';
-        item.style.left = Math.random() * (window.innerWidth - 80) + 'px';
-        item.style.top = '-100px';
+        item.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+        item.style.top = '-80px';
         container.appendChild(item);
 
-        let top = -100;
-        // Tốc độ thực tế = tốc độ cơ bản + một chút ngẫu nhiên
+        let top = -80;
         const speed = baseSpeed + (Math.random() * 2);
 
         const fallInterval = setInterval(() => {
@@ -144,7 +125,6 @@
             const p = paddle.getBoundingClientRect();
             const i = item.getBoundingClientRect();
 
-            // Va chạm
             if (i.bottom >= p.top && i.right >= p.left && i.left <= p.right && i.top <= p.bottom) {
                 score += 10;
                 update();
@@ -160,23 +140,19 @@
         barDisp.style.width = score + '%';
         if (score >= 100) {
             gameOver = true;
-            finalStats.innerText = `Bạn đã trụ được ${seconds} giây với tốc độ rơi ${baseSpeed.toFixed(1)}`;
+            document.getElementById('final-stats').innerText = `Bạn trụ được ${seconds} giây!`;
             msg.style.display = 'block';
             paddle.style.background = 'red';
         }
     }
 
-    // Tạo vật thể rơi (càng lâu tạo càng nhanh)
     function spawnLoop() {
         if (!gameOver) {
             createItem();
-            // Tần suất tạo vật rơi cũng nhanh dần theo tốc độ
-            let nextSpawn = Math.max(300, 800 - (seconds * 5));
-            setTimeout(spawnLoop, nextSpawn);
+            setTimeout(spawnLoop, Math.max(300, 900 - (seconds * 10)));
         }
     }
     spawnLoop();
 </script>
 </body>
 </html>
-
