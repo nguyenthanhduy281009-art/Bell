@@ -7,93 +7,53 @@
         body { margin: 0; overflow: hidden; background: #1a1a1a; color: white; font-family: sans-serif; }
         #game-container { position: relative; width: 100vw; height: 100vh; cursor: none; }
         
-        /* Mặt kính điều khiển */
+        /* Mặt kính */
         #paddle {
             position: absolute;
             bottom: 50px;
-            width: 140px;
-            height: 15px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            border-radius: 4px;
-            backdrop-filter: blur(8px);
+            width: 160px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid #fff;
+            border-radius: 10px;
             transform: translateX(-50%);
             z-index: 100;
         }
 
-        /* Giao diện khối lượng theo ảnh bạn gửi */
+        /* Giao diện khối lượng */
         .ui {
             position: fixed;
-            top: 10%;
+            top: 50px;
             width: 100%;
             text-align: center;
             pointer-events: none;
-            z-index: 200;
         }
-        .label { font-size: 24px; margin-bottom: 10px; }
-        .red { color: #ff4d4d; font-weight: bold; }
-        .progress-bg { 
-            width: 350px; 
-            height: 25px; 
-            background: #333; 
-            margin: 0 auto; 
-            border-radius: 5px; 
-            overflow: hidden;
-        }
-        #bar { 
-            height: 100%; 
-            width: 0%; 
-            background: #4CAF50; 
-            transition: width 0.1s; 
-        }
+        .red { color: #ff4d4d; font-weight: bold; font-size: 28px; }
+        .progress-bg { width: 350px; height: 20px; background: #333; margin: 10px auto; border-radius: 10px; }
+        #bar { height: 100%; width: 0%; background: #4CAF50; transition: 0.1s; }
 
-        /* Hình ảnh vật thể rơi */
+        /* Cục rơi sử dụng ảnh từ Drive của bạn */
         .falling-item {
             position: absolute;
-            width: 70px;
-            height: auto;
+            width: 80px; 
             pointer-events: none;
-            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
         }
 
-        /* Hiệu ứng vỡ kính */
-        .shatter { 
-            animation: shake 0.1s infinite; 
-            background: rgba(255, 0, 0, 0.5) !important;
-            border-color: red !important;
-        }
-        @keyframes shake {
-            0% { transform: translateX(-50%) translate(2px, 1px); }
-            50% { transform: translateX(-50%) translate(-2px, -1px); }
-            100% { transform: translateX(-50%) translate(1px, -2px); }
-        }
-        #game-over-msg {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            background: rgba(0,0,0,0.8);
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 300;
-        }
+        #msg { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 200; }
+        button { padding: 10px 20px; font-size: 20px; cursor: pointer; background: #444; color: #fff; border: none; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
     <div class="ui">
-        <div class="label">Khối lượng hiện tại: <span id="num" class="red">0</span> / 100</div>
+        <div>Khối lượng hiện tại: <span id="num" class="red">0</span> / 100</div>
         <div class="progress-bg"><div id="bar"></div></div>
     </div>
-    
     <div id="paddle"></div>
-
-    <div id="game-over-msg">
-        <h1 style="color:#ff4d4d">KÍNH ĐÃ VỠ!</h1>
-        <button onclick="location.reload()" style="padding:10px 20px; cursor:pointer">CHƠI LẠI</button>
+    <div id="msg">
+        <h1 style="color:red; font-size: 50px;">KÍNH VỠ!</h1>
+        <button onclick="location.reload()">CHƠI LẠI</button>
     </div>
 </div>
 
@@ -102,77 +62,60 @@
     const numDisp = document.getElementById('num');
     const barDisp = document.getElementById('bar');
     const container = document.getElementById('game-container');
-    const msg = document.getElementById('game-over-msg');
+    const msg = document.getElementById('msg');
 
     let score = 0;
-    let isGameOver = false;
+    let gameOver = false;
 
-    // Ảnh lấy từ file bạn vừa gửi
-    const customImg = "https://i.ibb.co/LzYvH8L/image.png"; 
+    // Sử dụng link ảnh trực tiếp từ Google Drive của bạn 
+    const imgURL = 'https://lh3.googleusercontent.com/d/16bzAEYDVO01KwYA4Vee3_Vivc98SmWS-'; 
 
-    // Điều khiển mặt kính theo chuột
     window.addEventListener('mousemove', (e) => {
-        if (!isGameOver) {
-            paddle.style.left = e.clientX + 'px';
-        }
+        if (!gameOver) paddle.style.left = e.clientX + 'px';
     });
 
-    function createFallingItem() {
-        if (isGameOver) return;
-
+    function createItem() {
+        if (gameOver) return;
         const item = document.createElement('img');
-        item.src = customImg;
+        item.src = imgURL;
         item.className = 'falling-item';
-        item.style.left = Math.random() * (window.innerWidth - 70) + 'px';
+        // Xử lý lỗi nếu ảnh không load được
+        item.onerror = function() { this.src = 'https://via.placeholder.com/80?text=CUC'; };
+        
+        item.style.left = Math.random() * (window.innerWidth - 80) + 'px';
         item.style.top = '-100px';
         container.appendChild(item);
 
-        let currentTop = -100;
-        const fallSpeed = 4 + Math.random() * 3;
-
+        let top = -100;
         const fallInterval = setInterval(() => {
-            if (isGameOver) {
-                clearInterval(fallInterval);
-                item.remove();
-                return;
-            }
+            if (gameOver) { clearInterval(fallInterval); item.remove(); return; }
+            top += 6;
+            item.style.top = top + 'px';
 
-            currentTop += fallSpeed;
-            item.style.top = currentTop + 'px';
-
-            // Kiểm tra va chạm với mặt kính
             const p = paddle.getBoundingClientRect();
             const i = item.getBoundingClientRect();
 
             if (i.bottom >= p.top && i.right >= p.left && i.left <= p.right && i.top <= p.bottom) {
                 score += 10;
-                updateGame();
+                update();
                 clearInterval(fallInterval);
                 item.remove();
             }
-
-            // Xóa khi rơi quá màn hình
-            if (currentTop > window.innerHeight) {
-                clearInterval(fallInterval);
-                item.remove();
-            }
+            if (top > window.innerHeight) { clearInterval(fallInterval); item.remove(); }
         }, 20);
     }
 
-    function updateGame() {
+    function update() {
         numDisp.innerText = score;
-        barDisp.style.width = Math.min(score, 100) + '%';
-
+        barDisp.style.width = score + '%';
         if (score >= 100) {
-            isGameOver = true;
-            paddle.classList.add('shatter');
+            gameOver = true;
             msg.style.display = 'block';
+            paddle.style.background = 'red';
         }
     }
 
-    // Tốc độ tạo vật thể rơi
-    setInterval(createFallingItem, 700);
+    setInterval(createItem, 700);
 </script>
-
 </body>
 </html>
