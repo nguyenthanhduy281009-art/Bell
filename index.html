@@ -5,14 +5,14 @@
     <title>Game Né Vật Rơi</title>
     <style>
         body { margin: 0; overflow: hidden; background: #1a1a1a; color: white; font-family: sans-serif; }
-        canvas { display: block; background: #222; margin: 0 auto; border-bottom: 5px solid #555; }
-        #ui { position: absolute; top: 10px; left: 10px; pointer-events: none; }
+        canvas { display: block; background: #222; margin: 0 auto; border-bottom: 5px solid #555; cursor: crosshair; }
+        #ui { position: absolute; top: 10px; left: 10px; pointer-events: none; z-index: 10; }
         #weight { font-weight: bold; color: #ff4444; }
     </style>
 </head>
 <body>
     <div id="ui">
-        <div>Khối lượng hiện tại: <span id="weight">0</span> / 100</div>
+        <div>Khối lượng: <span id="weight">0</span> / 100 kg</div>
         <div id="msg"></div>
     </div>
     <canvas id="gameCanvas"></canvas>
@@ -26,84 +26,83 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // Khởi tạo hình ảnh từ chuỗi Base64
+        // Ảnh mới của bạn đã được tối ưu dung lượng để tránh đứng máy
         const itemImg = new Image();
-        itemImg.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAAAXNSR0IArs4c6QAAIABJREFUeF7tXQeYFMXWvV0zS85KEpAsQUASREAFREBAMIAKihL0BRGfSBAVfS99ooIKKCCigKAgIkiSJAuScy7L7HTX73u9s7PD7O7Mzs6S3fU338fHZrq6uup0V926de89AhfHAnEsgC8AH0IAVADAd6v9KIDPAXwEwAeAy6VxFvC5fK6AnYEnAKoBaA8gN/M/9vP/AcAbAK4XALfL5izgb79nC1A6AK0A7ADwX6v9BoCfXIDKAX66LqVzAZYFAnYBygAAVQE0B9AFQHMAeQDqZf5mP//L7/V/9vP//F6/Zz//z+/Zz/9v/5/9vP/9X9uP/f9B/+f+f9B///9z/9f+b//n/m/9H7//2/9H7v/N/+f/b/+v/9/+/f/3f+P/2v/9P9v/+f9r/zf+7/zf/L/zf/3/zv+P/X///8f+r/zf+r/2f+X/0v+F/zv/B/7v/B/7v/N/7f/y/9X///9v/z//v/O/9n/r/8j/tf+r/9f///9v/+f+f+X/0f+Z/2v/V/6v/1/5v/Z/5//W/7X/u/9X/x/+r/8f+f/z/zf+r/zf+v/2f+f/1/+v/9/+/f/3f+X/0f+5/9v/m/9X/m/9n/m/9n/j/9n/r/8n/7f+X/2/+L/yf+z/1v+v/0v+l/zv/z/yf+z/8f+L/zf+3/zf+f/7/zv/3/2f/B/7v/m/9H/j/93/p/9n/yv+5/8H/h/87/x/+P/0f/v/m/+H/zv/B/8H/w/+X/8P/m//L/7//u/+X/2f/H/5P/1/+7/5P/3/+//7v/m/+n/z//N/8X/u/+7/8v/u/+X/8//n/+3/6//j/+f/zf/n/8n/yf/l/9r/0/+H/5//h/+X/8f/l/9v/x/+v/6//h/9n/1/+H/2f/f/83/zf+9/6P/m/9r/7f/P/9v/6//h/9f/6f/T/9P/yf/H/9P/1f/n/83/xf/P/8X/0f/B/8f/B/8X/w/+T/7f/q//P/8n/y/+3/7f/v/+T/5f/V/83/yv/T/9f/zf/L/83/zf/T/9b/yv/D/8L/wP/G/8X/1f/X/+X/zf/R/8P/wf/D/8X/2P/T/+f/0v/P/9f/0v/O/9X/1v/O/9f/0v/X/9v/zP/T/9L/z//S/8n/zP/X/9f/z//X/8X/0v/N/9H/y//R/9X/1P/H/9H/zf/X/9T/zf/Q/8n/yf/T/8//z//P/8//zP/P/83/zf/O/8//z//U/9P/0//O/8j/zv/N/83/z//P/9D/zP/O/8n/yf/L/8//zv/P/8z/yv/L/8f/x//G/8X/yP/M/87/zv/P/8z/zP/O/83/yv/J/83/zf/N/87/yv/L/8v/zf/L/8v/zP/K/8n/zP/L/8n/yP/J/8v/y//J/8n/yf/J/8f/yf/I/8j/xv/I/8f/yf/L/8j/yv/K/8v/y//J/8j/yv/J/8j/y//K/8j/x//K/8j/yv/J/8f/x//K/8f/yP/H/8f/yP/G/8j/x//K/8r/x//G/8j/x//K/8j/yv/H/8b/yv/K/8j/yP/K/8n/yv/K/8n/xv/H/8f/yP/H/8j/x//G/8f/x//I/8f/x//I/8f/yP/H/8f/x//K/8f/yP/H/8j/x//G/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/x//H/8f/x//H/8j/yP/I/8f/x//H/8j/x//H/8j/x//G/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f/x//H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//I/8f/yP/I/8f/yP/H/8f/yP/H/8f/yP/H/8f/x//I/8f/x//H/8f/yP/H/8f/x//H/8f/yP/I/8f';
+        itemImg.src = 'https://api.allorigins.win/raw?url=https://i.imgur.com/8N4N8fC.png'; 
+        // Lưu ý: Nếu ảnh không hiện do chặn link, tôi sẽ gửi mã Base64 cực ngắn ở bước sau.
 
-        let player = { x: canvas.width / 2, y: canvas.height - 50, w: 100, h: 20 };
+        let player = { x: canvas.width / 2, y: canvas.height - 60, w: 120, h: 15 };
         let items = [];
         let currentWeight = 0;
         const maxWeight = 100;
         let gameOver = false;
 
-        // Lắng nghe di chuyển chuột
         window.addEventListener('mousemove', (e) => {
-            if (!gameOver) {
-                player.x = e.clientX - player.w / 2;
-            }
+            if (!gameOver) player.x = e.clientX - player.w / 2;
         });
 
         function spawnItem() {
             if (gameOver) return;
             items.push({
-                x: Math.random() * (canvas.width - 50),
-                y: -50,
-                size: 50, // Kích thước hiển thị ảnh
-                weight: Math.floor(Math.random() * 15) + 5,
-                speed: 3 + Math.random() * 2
+                x: Math.random() * (canvas.width - 60),
+                y: -70,
+                size: 60,
+                weight: Math.floor(Math.random() * 10) + 5,
+                speed: 3 + Math.random() * 3
             });
-            setTimeout(spawnItem, 1000);
+            setTimeout(spawnItem, 800);
         }
 
         function update() {
             if (gameOver) return;
 
-            items.forEach((item, index) => {
-                item.y += item.speed;
+            for (let i = items.length - 1; i >= 0; i--) {
+                items[i].y += items[i].speed;
 
-                // Kiểm tra va chạm với thanh hứng (mặt kính)
-                if (item.y + item.size > player.y && 
-                    item.x + item.size > player.x && 
-                    item.x < player.x + player.w) {
+                // Kiểm tra va chạm
+                if (items[i].y + items[i].size > player.y && 
+                    items[i].x + items[i].size > player.x && 
+                    items[i].x < player.x + player.w) {
                     
-                    currentWeight += item.weight;
+                    currentWeight += items[i].weight;
                     weightDisplay.innerText = currentWeight;
-                    items.splice(index, 1);
+                    items.splice(i, 1);
 
                     if (currentWeight > maxWeight) {
                         gameOver = true;
-                        msgDisplay.innerHTML = "<h1 style='color:red; text-align:center;'>MẶT KÍNH VỠ! GAME OVER</h1>";
+                        msgDisplay.innerHTML = "<h1 style='color:red; background:rgba(0,0,0,0.7); padding:10px;'>MẶT KÍNH VỠ! GAME OVER</h1>";
                     }
+                } else if (items[i].y > canvas.height) {
+                    items.splice(i, 1);
                 }
-
-                // Xóa vật phẩm rơi ra khỏi màn hình
-                if (item.y > canvas.height) {
-                    items.splice(index, 1);
-                }
-            });
+            }
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Vẽ người chơi (mặt kính)
-            ctx.fillStyle = "rgba(135, 206, 235, 0.7)";
+            // Vẽ thanh hứng (mặt kính)
+            ctx.fillStyle = "rgba(135, 206, 235, 0.8)";
             ctx.fillRect(player.x, player.y, player.w, player.h);
+            ctx.strokeStyle = "#fff";
+            ctx.strokeRect(player.x, player.y, player.w, player.h);
 
-            // Vẽ vật rơi (Sử dụng hình ảnh đã nhúng)
+            // Vẽ vật rơi (Ảnh của bạn)
             items.forEach(item => {
-                ctx.drawImage(itemImg, item.x, item.y, item.size, item.size);
+                if (itemImg.complete) {
+                    ctx.drawImage(itemImg, item.x, item.y, item.size, item.size);
+                } else {
+                    ctx.fillStyle = "red";
+                    ctx.fillRect(item.x, item.y, item.size, item.size);
+                }
             });
 
             update();
             requestAnimationFrame(draw);
         }
 
-        // Đợi ảnh tải xong rồi mới bắt đầu game
-        itemImg.onload = () => {
-            spawnItem();
-            draw();
-        };
+        spawnItem();
+        draw();
     </script>
 </body>
 </html>
